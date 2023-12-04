@@ -1,13 +1,24 @@
 import cv2
+import pafy
+# Replace 'YOUR_YOUTUBE_URL' with the actual URL of the livestream
+youtube_url = 'https://www.youtube.com/watch?v=cNJDExqhx5o'
 
-video = cv2.VideoCapture("QuadCam.mp4") # object that reads the frames of our video
+# Get the video stream using pafy
+video = pafy.new(youtube_url).getbest(preftype="mp4")
 
+# OpenCV VideoCapture with the YouTube stream URL
+cap = cv2.VideoCapture(video.url)
+
+# Check if the video stream is opened successfully
+if not cap.isOpened():
+    print("Error: Could not open the video stream.")
+    exit()
 
 # background subtractor
 object_detector = cv2.createBackgroundSubtractorMOG2(history=300, varThreshold=10)
 
 while True: # anlayze frame by frame
-    ret, frame = video.read()
+    ret, frame = cap.read()
     mask = object_detector.apply(frame)
 
     _, mask = cv2.threshold(mask, 254, 255, cv2.THRESH_BINARY)
@@ -29,4 +40,4 @@ while True: # anlayze frame by frame
     if key == 27: # pressing esc will exit video capture
         break
 
-video.release()
+cap.release()
