@@ -1,5 +1,17 @@
 import cv2
 import numpy as np
+import pafy 
+
+# live stream version
+# youtube_url = 'https://www.youtube.com/watch?v=cNJDExqhx5o'
+# video = pafy.new(youtube_url).getbest(preftype="mp4")
+# cap = cv2.VideoCapture(video.url)
+
+# # Check if the video stream is opened successfully
+# if not cap.isOpened():
+#     print("Error: Could not open the video stream.")
+#     exit()
+
 
 def update_mask(frame, mask, background, threshold=30):
     gray_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
@@ -13,6 +25,7 @@ def update_mask(frame, mask, background, threshold=30):
     updated_mask = cv2.bitwise_or(mask, color_mask)
     return updated_mask
 
+# video version
 cap = cv2.VideoCapture("QuadCam-5mins.mp4")
 
 # Snapshot background to compare stationary entities
