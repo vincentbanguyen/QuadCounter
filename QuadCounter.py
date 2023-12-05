@@ -4,17 +4,17 @@ import math
 import pafy 
 from objects import FrameData
 
-# live stream version
-youtube_url = 'https://www.youtube.com/watch?v=cNJDExqhx5o'
-video = pafy.new(youtube_url).getbest(preftype="mp4")
-cap = cv2.VideoCapture(video.url)
+# # # live stream version
+# youtube_url = 'https://www.youtube.com/watch?v=cNJDExqhx5o'
+# video = pafy.new(youtube_url).getbest(preftype="mp4")
+# cap = cv2.VideoCapture(video.url)
 
-# Check if the video stream is opened successfully
-if not cap.isOpened():
-    print("Error: Could not open the video stream.")
-    exit()
+# # Check if the video stream is opened successfully
+# if not cap.isOpened():
+#     print("Error: Could not open the video stream.")
+#     exit()
 
-# cap = cv2.VideoCapture("QuadCam5Min.mp4")
+cap = cv2.VideoCapture("QuadCam5Min.mp4")
 
 # settings
 paused = False
@@ -73,17 +73,17 @@ def createFrame(frame, setting, frame_data):
         # Calculate area and remove small elements
         contour_area = cv2.contourArea(contour)
         x, y, w, h = cv2.boundingRect(contour)
-        cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 0, 255), 1)
-
+        
         center_x = int(x + w / 2)
         center_y = int(y + h / 2)
         # address people on top of window vs bottom scaling and who to consider as object
         scaled_considered_area_size = considered_area_size * (1/(frame.shape[0]**2))*(center_y**2)  # scaled_considered_area_size based on y, smaller y = smaller scaled_considered_area_size
         # scaled_considered_area_size = considered_area_size * y / frame.shape[0]  # scaled_considered_area_size based on y, smaller y = smaller scaled_considered_area_size
     
-        cv2.drawContours(frame, [contour], -1, (0, 255, 0), 2)
 
         if contour_area > scaled_considered_area_size: # if big enough to consider
+            cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 0, 255), 1)
+            cv2.drawContours(frame, [contour], -1, (0, 255, 0), 2)
             curr_detections.append((center_x,center_y))
     
     # at start of program, compare prev frame to curr frame . will identify all initial objects on the screen.
