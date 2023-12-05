@@ -3,7 +3,7 @@ import numpy as np
 import math
 import pafy 
 
-# live stream version
+# # live stream version
 # youtube_url = 'https://www.youtube.com/watch?v=cNJDExqhx5o'
 # video = pafy.new(youtube_url).getbest(preftype="mp4")
 # cap = cv2.VideoCapture(video.url)
@@ -26,14 +26,15 @@ def update_mask(frame, mask, background, threshold=30):
     updated_mask = cv2.bitwise_or(mask, color_mask)
     return updated_mask
 
-cap = cv2.VideoCapture("QuadCam-5mins.mp4")
+cap = cv2.VideoCapture("QuadCam5Min.mp4")
 
 # settings
 paused = False
 frames_to_advance = 1
 movement_threshold = 30
 frame_life = 30
-border_points = [(725, 380), (1225, 380), (1800, 1000), (100, 1000)]
+inner_border_points = [(750, 400), (1200, 400), (1650, 800), (250, 800)]
+outer_border_points = [(700, 350), (1250, 350), (1800, 900), (100, 900)]
 
 # Snapshot background to compare stationary entities
 ret, background = cap.read()
@@ -93,7 +94,6 @@ def processFrame():
     else: # rest of program will compare prev objects with current objects to see if it still exists. if not, we remove it.
         objects_copy = objects.copy()
         curr_detections_copy = curr_detections.copy()
-        print(objects)
         for curr_object_id, curr_object in objects_copy.items(): # iterate through objects
             exists = False
             for curr_detection in curr_detections_copy: # iterate through detections
@@ -120,7 +120,8 @@ def processFrame():
         cv2.putText(frame, str(id), (object[0][0], object[0][1] - 7), 0, 1, (0, 0, 255), 2)
 
     # draw on frame
-    cv2.polylines(frame, [np.array(border_points)], isClosed=True, color=(0, 0, 255), thickness=3)
+    cv2.polylines(frame, [np.array(outer_border_points)], isClosed=True, color=(0, 0, 255), thickness=3)
+    cv2.polylines(frame, [np.array(inner_border_points)], isClosed=True, color=(0, 0, 255), thickness=3)
     # cv2.putText(frame, f'Total People: {int(track_id)}', (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
 
     cv2.imshow("Frame", frame)
