@@ -1,6 +1,7 @@
 # QuadCounter
-Counts the number of people currently on the quad using UIUC's Youtube Quad Cam Livestream. 
+Our final project estimates the number of people on the quad by utilizing the UIUC live stream and object detection and object tracking. We originally wanted to count people going into a local restaurant, but we pivoted since there currently isn’t much traffic in that area and we couldn’t find a reliable place to position a camera. In theory, this code should also work for our original proposal and similar situations with a few tweaks to detection settings and boundaries.
 
+![Demo Video](QuadCam5Min.mp4)
 ## How to Run
 
 To run the project, follow these steps:
