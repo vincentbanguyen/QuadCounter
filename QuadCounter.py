@@ -5,37 +5,31 @@ import pafy
 from objects import FrameData
 
 
-# #----------------------live stream version---------------------##
+#----------------------live stream version---------------------##
 
-# youtube_url = 'https://www.youtube.com/watch?v=cNJDExqhx5o'
-# video = pafy.new(youtube_url).getbest(preftype="mp4")
-# cap = cv2.VideoCapture(video.url)
+youtube_url = 'https://www.youtube.com/watch?v=cNJDExqhx5o'
+video = pafy.new(youtube_url).getbest(preftype="mp4")
+cap = cv2.VideoCapture(video.url)
 
-# # Check if the video stream is opened successfully
-# if not cap.isOpened():
-#     print("Error: Could not open the video stream.")
-#     exit()
+# Check if the video stream is opened successfully
+if not cap.isOpened():
+    print("Error: Could not open the video stream.")
+    exit()
+#--------------------------------------------------------------##
+
+# #-------------------------recorded version---------------------##
+# cap = cv2.VideoCapture("QuadCam5Min.mp4")
 # #--------------------------------------------------------------##
 
-
-cap = cv2.VideoCapture("QuadCam5Min.mp4")
-
-# settings
+# global settings
 paused = False
 frames_to_advance = 1
-
-# define process area
-inner_border_points = [(750, 400), (1200, 400), (1650, 800), (250, 800)]
-outer_border_points = [(700, 350), (1250, 350), (1800, 900), (100, 900)]
-
 frame_count = 0
 
 # considered_area_size, movement_threadhold, frame_life, show_detections, detector
-# lower var threadhold = less picky selecting foreground
-# lower history = less of particle trail
 setting0 = [15, 60, 15, True, cv2.createBackgroundSubtractorMOG2(history=100, varThreshold=50)]
 # setting1 = [15, 60, 15, False, cv2.createBackgroundSubtractorMOG2(history=100, varThreshold=50)]
-# setting2 = [15, 60, 15, cv2.createBackgroundSubtractorMOG2(history=200, varThreshold=50)]
+
 settings = [setting0]
 
 # Snapshot background to compare stationary entities
@@ -80,12 +74,8 @@ def createFrame(frame, setting, frame_data):
         
         center_x = int(x + w / 2)
         center_y = int(y + h / 2)
-        # address people on top of window vs bottom scaling and who to consider as object
-        scaled_considered_area_size = considered_area_size * (1/(frame.shape[0]**2))*(center_y**2)  # scaled_considered_area_size based on y, smaller y = smaller scaled_considered_area_size
-        # scaled_considered_area_size = considered_area_size * y / frame.shape[0]  # scaled_considered_area_size based on y, smaller y = smaller scaled_considered_area_size
-    
 
-        if contour_area > scaled_considered_area_size: # if big enough to consider
+        if contour_area > considered_area_size * (1/(frame.shape[0]**2))*(center_y**2):  # scaled_considered_area_size based on y
             if show_detections:
                 cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 0, 255), 1)
                 cv2.drawContours(frame, [contour], -1, (0, 255, 0), 2)
@@ -97,7 +87,6 @@ def createFrame(frame, setting, frame_data):
             for prev in prev_detections:
                 distance = math.hypot(prev[0]-curr[0],prev[1]-curr[1])
                 # if distance between detections less than threshold, register this object
-                # if distance < movement_threshold * (1/(frame.shape[0]**2))*(curr[1]**2): # account for y scaling
                 if distance < movement_threshold * curr[1] / frame.shape[0]: # account for y scaling
                     objects[object_id] = [curr, frame_life]
                     object_id +=1
@@ -110,7 +99,6 @@ def createFrame(frame, setting, frame_data):
                 if curr_detection in curr_detections:
                     distance = math.hypot(curr_object[0][0]-curr_detection[0],curr_object[0][1]-curr_detection[1])
                     # if distance between detections less than thrashold, than remove that extra detection since it's the same object.
-                    # if distance < movement_threshold * (1/(frame.shape[0]**2))*(curr_detection[1]**2): # account for y scaling
                     if distance < movement_threshold * curr_detection[1] / frame.shape[0]: # account for y scaling
                         exists = True
                         objects[curr_object_id] = [curr_detection, frame_life] # update object id to current position
@@ -129,7 +117,7 @@ def createFrame(frame, setting, frame_data):
     for id, object in objects.items():
         if show_detections:
             cv2.circle(frame, object[0], 5, (0, 0, 255), -1)
-        # cv2.putText(frame, str(id), (object[0][0], object[0][1] - 7), 0, 1, (0, 0, 255), 2)
+            # cv2.putText(frame, str(id), (object[0][0], object[0][1] - 7), 0, 1, (0, 0, 255), 2)
 
     # draw on frame
     cv2.polylines(frame, [np.array(vertices)], isClosed=True, color=(0, 0, 255), thickness=3)
