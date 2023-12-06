@@ -26,18 +26,18 @@ outer_border_points = [(700, 350), (1250, 350), (1800, 900), (100, 900)]
 
 frame_count = 0
 
-# considered_area_size, movement_threadhold, frame_life, detector
+# considered_area_size, movement_threadhold, frame_life, show_detections, detector
 # lower var threadhold = less picky selecting foreground
 # lower history = less of particle trail
-setting0 = [15, 60, 15, cv2.createBackgroundSubtractorMOG2(history=100, varThreshold=50)]
-# setting1 = [15, 60, 15, cv2.createBackgroundSubtractorMOG2(history=100, varThreshold=50)]
+setting0 = [15, 60, 15, True, cv2.createBackgroundSubtractorMOG2(history=100, varThreshold=50)]
+setting1 = [15, 60, 15, False, cv2.createBackgroundSubtractorMOG2(history=100, varThreshold=50)]
 # setting2 = [15, 60, 15, cv2.createBackgroundSubtractorMOG2(history=200, varThreshold=50)]
-settings = [setting0]
+settings = [setting0,setting1]
 
 # Snapshot background to compare stationary entities
 ret, background = cap.read()
 
-frame_data = [FrameData()]
+frame_data = [FrameData(),FrameData()]
 
 def mouse_callback(event, x, y, flags, param):
     if event == cv2.EVENT_MOUSEMOVE:
@@ -49,7 +49,7 @@ def createFrame(frame, setting, frame_data):
     global background
 
     # apply settings
-    considered_area_size, movement_threshold, frame_life, detector = setting
+    considered_area_size, movement_threshold, frame_life, show_detections, detector = setting
     
     # retrieve frame data
     objects = frame_data.objects
@@ -82,8 +82,9 @@ def createFrame(frame, setting, frame_data):
     
 
         if contour_area > scaled_considered_area_size: # if big enough to consider
-            cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 0, 255), 1)
-            cv2.drawContours(frame, [contour], -1, (0, 255, 0), 2)
+            if show_detections:
+                cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 0, 255), 1)
+                cv2.drawContours(frame, [contour], -1, (0, 255, 0), 2)
             curr_detections.append((center_x,center_y))
     
     # at start of program, compare prev frame to curr frame . will identify all initial objects on the screen.
@@ -122,7 +123,8 @@ def createFrame(frame, setting, frame_data):
         object_id +=1
 
     for id, object in objects.items():
-        cv2.circle(frame, object[0], 5, (0, 0, 255), -1)
+        if show_detections:
+            cv2.circle(frame, object[0], 5, (0, 0, 255), -1)
         # cv2.putText(frame, str(id), (object[0][0], object[0][1] - 7), 0, 1, (0, 0, 255), 2)
 
     # draw on frame
