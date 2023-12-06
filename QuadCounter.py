@@ -4,7 +4,9 @@ import math
 import pafy 
 from objects import FrameData
 
-# # # live stream version
+
+# #----------------------live stream version---------------------##
+
 # youtube_url = 'https://www.youtube.com/watch?v=cNJDExqhx5o'
 # video = pafy.new(youtube_url).getbest(preftype="mp4")
 # cap = cv2.VideoCapture(video.url)
@@ -13,6 +15,8 @@ from objects import FrameData
 # if not cap.isOpened():
 #     print("Error: Could not open the video stream.")
 #     exit()
+# #--------------------------------------------------------------##
+
 
 cap = cv2.VideoCapture("QuadCam5Min.mp4")
 
@@ -30,14 +34,14 @@ frame_count = 0
 # lower var threadhold = less picky selecting foreground
 # lower history = less of particle trail
 setting0 = [15, 60, 15, True, cv2.createBackgroundSubtractorMOG2(history=100, varThreshold=50)]
-setting1 = [15, 60, 15, False, cv2.createBackgroundSubtractorMOG2(history=100, varThreshold=50)]
+# setting1 = [15, 60, 15, False, cv2.createBackgroundSubtractorMOG2(history=100, varThreshold=50)]
 # setting2 = [15, 60, 15, cv2.createBackgroundSubtractorMOG2(history=200, varThreshold=50)]
-settings = [setting0,setting1]
+settings = [setting0]
 
 # Snapshot background to compare stationary entities
 ret, background = cap.read()
 
-frame_data = [FrameData(),FrameData()]
+frame_data = [FrameData()]
 
 def mouse_callback(event, x, y, flags, param):
     if event == cv2.EVENT_MOUSEMOVE:
