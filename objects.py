@@ -3,3 +3,4 @@ class FrameData:
         self.objects = {}
         self.object_id = 0
         self.prev_detections = []
+        
